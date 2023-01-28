@@ -70,9 +70,11 @@ def train_model(data_pth, model_pth):
     try:
         with open(model_pth + '/trainedmodel.pkl', 'wb') as mod:
             pickle.dump(model, mod)
-    except FileNotFoundError as f:
-        logging.error("File %s not found, check config.json: %s", model_pth, f)
-        raise f
+    except FileNotFoundError as fnf:
+        logging.error(
+            "File %s/trainedmodel.pkl not found, check config.json: %s",
+            model_pth, fnf)
+        raise fnf
     except Exception as e:
         logging.error("Error writing model to file %s", e)
         raise e
