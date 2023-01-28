@@ -1,25 +1,82 @@
-from flask import Flask, session, jsonify, request
-import pandas as pd
-import numpy as np
-import pickle
-import os
-from sklearn import metrics
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+"""
+This script should load a trained model, load test data, and calculate an
+F1 score for the model relative to the test data it should write the result
+to the latestscore.txt file
+
+Author: Derrick Lewis
+Date: 2023-01-28
+"""
 import json
+import os
+import pickle
+import logging
+import pandas as pd
+from sklearn import metrics
+
+logging.basicConfig(
+    filename="./logs/training.log",
+    level=logging.INFO,
+    filemode='w',
+    format='%(name)s - %(levelname)s - %(message)s'
+)
 
 
+# Function for model scoring
+def score_model(
+    output_folder_path: str,
+    test_data_path: str,
+    output_model_path: str
+        ) -> None:
+    """
+    This function should take a trained model, load test data, and calculate an
+    F1 score for the model relative to the test data it should write the result
+    to the latestscore.txt file
 
-#################Load config.json and get path variables
-with open('config.json','r') as f:
-    config = json.load(f) 
+    Parameters
+    ---
+    dataset_csv_path: str
+        Path to the dataset csv file
+    test_data_path: str
+        Path to the test data csv file
+    model_path: str
+        Path to the model pickle file
 
-dataset_csv_path = os.path.join(config['output_folder_path']) 
-test_data_path = os.path.join(config['test_data_path']) 
+    Returns
+    ---
+    None
+    """
+    logging.info("Scoring model")
+    try:
+        dff = pd.read_csv(test_data_path + '/testdata.csv')
+
+        y = dff.pop('exited')
+        X = dff.drop('corporation', axis=1)
+    except FileNotFoundError as fnf:
+        logging.error("File %s/testdata.csv not found, check config.json: %s",
+                      test_data_path, fnf)
+        raise fnf
+    except Exception as e:
+        logging.error("Error reading data %s", e)
+        raise e
+    model = pickle.load(open(output_model_path + '/trainedmodel.pkl', 'rb'))
+
+    preds = model.predict(X)
+
+    f1 = metrics.f1_score(y, preds)
+
+    with open(output_folder_path + '/latestscore.txt', 'w', encoding='utf8'
+              ) as file:
+        file.write(str(f1))
 
 
-#################Function for model scoring
-def score_model():
-    #this function should take a trained model, load test data, and calculate an F1 score for the model relative to the test data
-    #it should write the result to the latestscore.txt file
+if __name__ == '__main__':
 
+    # Path variables are stored in config.json
+    with open('config.json', 'r', encoding='utf8') as f:
+        config = json.load(f)
+
+    OUTPUT = os.path.join(config['output_folder_path'])
+    TEST_DATA = os.path.join(config['test_data_path'])
+    MODEL = os.path.join(config['output_model_path'])
+
+    score_model(OUTPUT, TEST_DATA, MODEL)
