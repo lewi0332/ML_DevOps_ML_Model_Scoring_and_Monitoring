@@ -53,9 +53,10 @@ def merge_multiple_dataframe(
     result = glob.glob(f'./{input_path}/*.{ext}')
     try:
         assert len(result) > 0
-    except AssertionError:
+    except AssertionError as e:
         logging.error("Input folder %s does not contain .csv files",
                       input_path)
+        raise e
     logging.info("Found (%i) files in the input folder", len(result))
     for filename in result:
         logging.info("Reading file: %s", filename)
@@ -63,6 +64,7 @@ def merge_multiple_dataframe(
             df = pd.read_csv(filename)
         except Exception as e:
             logging.error("Could not read file: %s due to %s", filename, e)
+            raise e
         logging.info("Successfully read file: %s", filename)
         final_dataframe = pd.concat([final_dataframe, df], axis=0)
     try:
@@ -71,6 +73,7 @@ def merge_multiple_dataframe(
         logging.info("Removed %i duplicates", start_len - len(final_dataframe))
     except Exception as e:
         logging.error("Could not remove duplicates due to %s", e)
+        raise e
     logging.info("Writing output file to %s", output_folder_path)
     final_dataframe.to_csv("./" + output_path + '/finaldata.csv',
                            index=False)
