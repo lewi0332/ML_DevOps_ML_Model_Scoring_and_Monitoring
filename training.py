@@ -8,8 +8,16 @@ Date: 2023-01-28
 import os
 import pickle
 import json
+import logging
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
+
+logging.basicConfig(
+    filename="./logs/training.log",
+    level=logging.INFO,
+    filemode='w',
+    format='%(name)s - %(levelname)s - %(message)s'
+)
 
 
 # Function for training the model
@@ -28,10 +36,14 @@ def train_model(data_pth, model_pth):
     ---
     None
     """
-    dff = pd.read_csv(data_pth + '/finaldata.csv')
-    y = dff.pop('exited')
-    X = dff.drop('corporation', axis=1)
-
+    logging.info("Training model")
+    try:
+        dff = pd.read_csv(data_pth + '/finaldata.csv')
+        y = dff.pop('exited')
+        X = dff.drop('corporation', axis=1)
+    except Exception as e:
+        logging.error("Error reading data %s", e)
+        raise e
     model = LogisticRegression(
         C=1.0,
         class_weight=None,
@@ -50,18 +62,28 @@ def train_model(data_pth, model_pth):
         warm_start=False)
 
     # fit the logistic regression to your data
+    logging.info('Fitting model')
     model = model.fit(X, y)
 
     # write the trained model in a file called trainedmodel.pkl
-    with open(model_pth + '/trainedmodel.pkl', 'wb') as file:
-        pickle.dump(model, file)
+    logging.info('Writing model to file')
+    try:
+        with open(model_pth + '/trainedmodel.pkl', 'wb') as mod:
+            pickle.dump(model, mod)
+    except FileNotFoundError as f:
+        logging.error("File %s not found, check config.json: %s", model_pth, f)
+        raise f
+    except Exception as e:
+        logging.error("Error writing model to file %s", e)
+        raise e
+    logging.info('Model training complete')
     return None
 
 
 if __name__ == "__main__":
     # Load config.json and get path variables
-    with open('config.json', 'r', encoding='utf8') as f:
-        config = json.load(f)
+    with open('config.json', 'r', encoding='utf8') as file:
+        config = json.load(file)
 
     dataset_csv_path = os.path.join(config['output_folder_path'])
     model_path = os.path.join(config['output_model_path'])
