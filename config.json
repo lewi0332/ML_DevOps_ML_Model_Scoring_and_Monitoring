@@ -3,5 +3,8 @@
     "output_folder_path": "ingesteddata",
     "test_data_path": "testdata",
     "output_model_path": "practicemodels",
-    "prod_deployment_path": "production_deployment"
+    "prod_deployment_path": "production_deployment",
+    "report_path": "models",
+    "input_file_extension": "csv",
+    "url": "http://127.0.0.1:8000/"
 }

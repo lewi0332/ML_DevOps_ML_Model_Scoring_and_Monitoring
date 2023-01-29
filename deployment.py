@@ -20,8 +20,8 @@ logging.basicConfig(
 # Function for deployment
 def store_model_into_pickle(
     output_folder_path: str,
-    prod_deployment_path: str,
-    output_model_path: str
+    output_model_path: str,
+    prod_deployment_path: str
         ) -> None:
     """
     Copy the latest pickle file, the latestscore.txt value, and the
@@ -30,13 +30,13 @@ def store_model_into_pickle(
     Parameters
     ---
     output_folder_path: str
-        Path to the directory containing the latest pickle file, the
-        latestscore.txt value, and the ingestfiles.txt file
+        Path to the directory containing the
+        latestscore.txt value and the ingestfiles.json file
+    output_model_path: str
+        path to the latest model pickle file
     prod_deployment_path: str
         Path to the directory where the latest pickle file, the latestscore.txt
         value, and the ingestfiles.txt file will be copied
-    output_model_path: str
-        path to the latest pickle file
 
     Returns
     ---
@@ -51,8 +51,8 @@ def store_model_into_pickle(
         os.system("cp " + output_folder_path + "/latestscore.txt "
                   + prod_deployment_path + "/latestscore.txt")
         # Copy the ingestfiles.txt file
-        os.system("cp " + output_folder_path + "/ingestedfiles.txt "
-                  + prod_deployment_path + "/ingestedfiles.txt")
+        os.system("cp " + output_folder_path + "/ingestedfiles.json "
+                  + prod_deployment_path + "/ingestedfiles.json")
     except FileNotFoundError as fnf:
         logging.error(
             "File not found, check config.json: %s", fnf)

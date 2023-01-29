@@ -6,25 +6,43 @@ import json
 import requests
 
 # Specify a URL that resolves to your workspace
-URL = "http://127.0.0.1:8000/"
 
-with open('config.json', 'r', encoding='utf8') as f:
-    config = json.load(f)
 
-dataset_csv_path = os.path.join(config['output_folder_path'])
 
-# Call each API endpoint and store the responses
-response1 = requests.get(
-    URL + "prediction",
-    params={'filepath': 'testdata/testdata.csv'},
-    timeout=10).json()
-response2 = requests.get(URL + "scoring", timeout=10).content.decode()
-response3 = requests.get(URL + "summarystats", timeout=10).json()
-response4 = requests.get(URL + "diagnostics", timeout=10).json()
+def get_data(output_folder_path: str, url: str) -> None:
+    """
+    Call each API endpoint and store the responses
 
-apicalls = {'prediction': response1, 'F1_score': response2,
-            'data_summary': response3, 'diagnostics': response4}
-responses = apicalls
+    Parameters
+    ---
+    output_folder_path: str
+        Path to the folder where the responses will be stored
+    
+    Returns
+    ---
+    None
+    """
+    response1 = requests.get(
+        url + "prediction",
+        params={'filepath': 'testdata/testdata.csv'},
+        timeout=10).json()
+    response2 = requests.get(url + "scoring", timeout=10).content.decode()
+    response3 = requests.get(url + "summarystats", timeout=10).json()
+    response4 = requests.get(url + "diagnostics", timeout=10).json()
 
-with open(dataset_csv_path + '/apireturns.json', 'w', encoding='utf8') as resp:
-    json.dump(responses, resp, indent=4)
+    apicalls = {'prediction': response1, 'F1_score': response2,
+                'data_summary': response3, 'diagnostics': response4}
+    responses = apicalls
+
+    with open(output_folder_path + '/apireturns.json', 'w', encoding='utf8') as resp:
+        json.dump(responses, resp, indent=4)
+    return None
+
+if __name__ == '__main__':
+    with open('config.json', 'r', encoding='utf8') as f:
+        config = json.load(f)
+
+    OUTPUT_PATH = os.path.join(config['output_folder_path'])
+    URL = config['url']
+
+    get_data(OUTPUT_PATH, URL)

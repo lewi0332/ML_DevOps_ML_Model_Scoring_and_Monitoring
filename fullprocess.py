@@ -1,40 +1,93 @@
+"""
+This script is the main script that runs the entire process. 
+It will be scheduled to run on a regular basis. 
+
+Author: Derrick Lewis
+Date: 2023-01-29
+"""
+import sys
+import os
+import logging
+import json
+import glob
+from ingestion import merge_multiple_dataframe
+from training import train_model
+from scoring import score_model
+from deployment import store_model_into_pickle
+from reporting import score_model
+from apicalls import get_data
+
+logging.basicConfig(
+    filename="./logs/fullprocess.log",
+    level=logging.INFO,
+    filemode='w',
+    format='%(name)s - %(levelname)s - %(message)s'
+)
+
+with open('config.json', 'r', encoding='utf8') as file:
+    config = json.load(file)
+
+DEPLOY_PATH = os.path.join(config['prod_deployment_path'])
+INPUT_PATH = os.path.join(config['input_folder_path'])
+OUTPUT_PATH = os.path.join(config['output_folder_path'])
+OUTPUT_MODEL_PATH = os.path.join(config['output_model_path'])
+REPORT_PATH = os.path.join(config['report_path'])
+TEST_DATA_PATH = os.path.join(config['test_data_path'])
+EXT = config['input_file_extension']
+URL = config['url']
 
 
-import training
-import scoring
-import deployment
-import diagnostics
-import reporting
+# First, read ingestedfiles.json
+with open(
+    os.path.join(DEPLOY_PATH, 'ingestedfiles.json'),
+    'r',
+    encoding="utf8"
+          ) as file:
+    ingestedfiles = json.load(file)
 
-##################Check and read new data
-#first, read ingestedfiles.txt
+# Second, determine whether the source data folder has new files
+newfiles = glob.glob(f'./{INPUT_PATH}/*.{EXT}')
 
-#second, determine whether the source data folder has files that aren't listed in ingestedfiles.txt
+if len(newfiles) > 0:
+    newfiles = [os.path.basename(file) for file in newfiles]
+    newfiles = [file for file in newfiles if file not in ingestedfiles]
+    if len(newfiles) > 0:
+        logging.info("Found new files: %s", newfiles)
+        df = merge_multiple_dataframe(INPUT_PATH, OUTPUT_PATH, EXT)
+        OUTPUT_DATA_PATH = os.path.join(
+            config['output_folder_path'],
+            'finaldata.csv')
+    else:
+        logging.info("No new files found")
+        sys.exit()
+else:
+    logging.info("Zero files in the source data folder with extension %s",
+                 EXT)
+    sys.exit()
 
+# Read in the score from the deployed model
+with open(
+    os.path.join(DEPLOY_PATH, 'latestscore.txt'),
+    'r',
+    encoding="utf8"
+          ) as f1:
+    og_f1_score = float(f1.read())
 
+# train the model on the new data and get the f1 score
+new_f1_score = score_model(OUTPUT_PATH, OUTPUT_DATA_PATH, DEPLOY_PATH)
 
-##################Deciding whether to proceed, part 1
-#if you found new data, you should proceed. otherwise, do end the process here
+if new_f1_score < og_f1_score:
+    logging.info("Model drift detected")
+    model_drift = True
+    
+else:
+    logging.info("No model drift detected")
+    model_drift = False
+    sys.exit()
 
-
-##################Checking for model drift
-#check whether the score from the deployed model is different from the score from the model that uses the newest ingested data
-
-
-##################Deciding whether to proceed, part 2
-#if you found model drift, you should proceed. otherwise, do end the process here
-
-
-
-##################Re-deployment
-#if you found evidence for model drift, re-run the deployment.py script
-
-##################Diagnostics and reporting
-#run diagnostics.py and reporting.py for the re-deployed model
-
-
-
-
-
-
-
+# Re-deployment
+if model_drift is True:
+    train_model(OUTPUT_PATH, OUTPUT_MODEL_PATH)
+    store_model_into_pickle(OUTPUT_PATH, OUTPUT_MODEL_PATH, DEPLOY_PATH)
+    get_data(REPORT_PATH, URL)
+    score_model(df, REPORT_PATH, DEPLOY_PATH)

@@ -7,7 +7,7 @@ Data is read from the input folder and written to the output folder
 Authort: Derrick Lewis
 Date: 2023-01-28
 """
-
+import os
 import glob
 import json
 import logging
@@ -23,8 +23,8 @@ logging.basicConfig(
 
 # Function for data ingestion
 def merge_multiple_dataframe(
-    input_path: str,
-    output_path: str,
+    input_folder_path: str,
+    output_folder_path: str,
     ext: str
         ) -> pd.DataFrame:
     """Merges multiple csv files into one dataframe, de-duplicates records
@@ -37,6 +37,9 @@ def merge_multiple_dataframe(
 
     output_folder_path: str
         Path to the folder where the output file will be written
+    
+    ext: str
+        Extension of the files to be read ie. csv, txt, etc.
 
     Returns
     ---
@@ -50,12 +53,12 @@ def merge_multiple_dataframe(
 
     # check for datasets, compile them together, and write to an output file
     # check if the input folder is empty
-    result = glob.glob(f'./{input_path}/*.{ext}')
+    result = glob.glob(f'./{input_folder_path}/*.{ext}')
     try:
         assert len(result) > 0
     except AssertionError as e:
         logging.error("Input folder %s does not contain .csv files",
-                      input_path)
+                      input_folder_path)
         raise e
     logging.info("Found (%i) files in the input folder", len(result))
     for filename in result:
@@ -75,15 +78,15 @@ def merge_multiple_dataframe(
         logging.error("Could not remove duplicates due to %s", e)
         raise e
     logging.info("Writing output file to %s", output_folder_path)
-    final_dataframe.to_csv("./" + output_path + '/finaldata.csv',
+    final_dataframe.to_csv("./" + output_folder_path + '/finaldata.csv',
                            index=False)
-    logging.info("Successfully wrote output file to %s", output_path)
+    logging.info("Successfully wrote output file to %s", output_folder_path)
 
-    # Save ingested file names as a python list
-    logging.info('Saving ingested file names as a python list')
-    with open('./' + output_path + '/ingestedfiles.txt', 'w',
+    # Save ingested file names as a python json file
+    logging.info('Saving ingested file names as json file')
+    with open('./' + output_folder_path + '/ingestedfiles.json', 'w',
               encoding='utf8') as file:
-        file.write(str(result))
+        json.dump([os.path.basename(file) for file in result], file)
     return final_dataframe
 
 
@@ -92,9 +95,9 @@ if __name__ == '__main__':
     with open('config.json', 'r', encoding="utf8") as f:
         config = json.load(f)
 
-    input_folder_path = config['input_folder_path']
-    output_folder_path = config['output_folder_path']
-    extension = 'csv'
+    INPUT_PATH = config['input_folder_path']
+    OUTPUT_PATH = config['output_folder_path']
+    EXT = 'csv'
 
-    merge_multiple_dataframe(input_folder_path, output_folder_path, extension)
+    merge_multiple_dataframe(INPUT_PATH, OUTPUT_PATH, EXT)
 

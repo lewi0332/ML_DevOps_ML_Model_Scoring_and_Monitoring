@@ -54,12 +54,14 @@ def score_model(
     logging.info('loaded model predictions')
 
     logging.info('Generating confusion matrix in Plotly')
+    print('dff exited type: ', dff['exited'].dtype)
+    print('preds type: ', preds.dtype)
     fig = go.Figure()
     fig.add_trace(go.Heatmap(
-        z=metrics.confusion_matrix(dff['exited'], preds),
+        z=metrics.confusion_matrix(dff['exited'].astype(int), preds),
         x=['Predicted Not Exited', 'Predicted Exited'],
         y=['Actual Not Exited', 'Actual Exited'],
-        text=metrics.confusion_matrix(dff['exited'], preds),
+        text=metrics.confusion_matrix(dff['exited'].astype(int), preds),
         texttemplate="%{text}",
         textfont={"size": 20},
         colorscale='YlGnBu')

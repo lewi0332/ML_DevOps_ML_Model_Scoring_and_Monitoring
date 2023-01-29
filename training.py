@@ -20,8 +20,7 @@ logging.basicConfig(
 )
 
 
-# Function for training the model
-def train_model(data_pth, model_pth):
+def train_model(data_pth: str, model_pth: str) -> None:
     """
     Trains a logistic regression model on the data in finaldata.csv
 

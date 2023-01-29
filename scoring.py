@@ -26,7 +26,7 @@ def score_model(
     output_folder_path: str,
     test_data_path: str,
     output_model_path: str
-        ) -> None:
+        ) -> float:
     """
     This function should take a trained model, load test data, and calculate an
     F1 score for the model relative to the test data it should write the result
@@ -34,20 +34,22 @@ def score_model(
 
     Parameters
     ---
-    dataset_csv_path: str
+    output_folder_path: str
         Path to the dataset csv file
     test_data_path: str
-        Path to the test data csv file
-    model_path: str
+        Path to the test data csv file including the filename 
+        ie. '/data/testdata.csv'
+    output_model_path: str
         Path to the model pickle file
 
     Returns
     ---
-    None
+    F1 score: float
+
     """
     logging.info("Scoring model")
     try:
-        dff = pd.read_csv(test_data_path + '/testdata.csv')
+        dff = pd.read_csv(test_data_path)
 
         y = dff.pop('exited')
         X = dff.drop('corporation', axis=1)
@@ -67,6 +69,7 @@ def score_model(
     with open(output_folder_path + '/latestscore.txt', 'w', encoding='utf8'
               ) as file:
         file.write(str(f1))
+    return f1
 
 
 if __name__ == '__main__':
@@ -76,7 +79,7 @@ if __name__ == '__main__':
         config = json.load(f)
 
     OUTPUT = os.path.join(config['output_folder_path'])
-    TEST_DATA = os.path.join(config['test_data_path'])
+    TEST_DATA = os.path.join(config['test_data_path'], 'testdata.csv')
     MODEL = os.path.join(config['output_model_path'])
 
     score_model(OUTPUT, TEST_DATA, MODEL)
