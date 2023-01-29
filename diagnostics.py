@@ -12,13 +12,7 @@ import subprocess
 import pickle
 import pandas as pd
 
-logging.basicConfig(
-    filename="./logs/diagnostics.log",
-    level=logging.INFO,
-    filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s'
-)
-
+logger = logging.getLogger(__name__)
 
 # Function to get model predictions
 def model_predictions(
@@ -40,11 +34,11 @@ def model_predictions(
     list
         A list containing all predictions
     """
-    logging.info("Getting model predictions")
+    logger.info("Getting model predictions")
     try:
         assert dff.shape[0] > 0
     except AssertionError as assert_error:
-        logging.error("No data to make predictions on %s", assert_error)
+        logger.error("No data to make predictions on %s", assert_error)
         raise assert_error
     try:
         model = pickle.load(
@@ -52,7 +46,7 @@ def model_predictions(
         predictions = model.predict(dff.drop(['corporation', 'exited'],
                                     axis=1))
     except Exception as e:
-        logging.error("Error getting predictions %s", e)
+        logger.error("Error getting predictions %s", e)
         raise e
     return predictions
 
@@ -74,17 +68,17 @@ def dataframe_summary(
     dict
         A dict containing all summary statistics
     """
-    logging.info("Getting summary statistics")
+    logger.info("Getting summary statistics")
     try:
         dff = pd.read_csv(output_folder_path + '/finaldata.csv')
     except Exception as e:
-        logging.error("Error reading data %s", e)
+        logger.error("Error reading data %s", e)
         raise e
     try:
         # Divert from instructions to use dict instead of list
         summary_stats = dff.describe().to_dict()
     except Exception as e:
-        logging.error("Error getting summary statistics %s", e)
+        logger.error("Error getting summary statistics %s", e)
         raise e
     return summary_stats
 
@@ -106,19 +100,19 @@ def missing_data(
     dict
         A dict containing all summary statistics
     """
-    logging.info("Getting missing data")
+    logger.info("Getting missing data")
     try:
         dff = pd.read_csv(output_folder_path + '/finaldata.csv')
     except Exception as e:
-        logging.error("Error reading data %s", e)
+        logger.error("Error reading data %s", e)
         raise e
     try:
         # Divert from instructions to use dict instead of list
         nan_counts = dff.isna().sum().to_dict()
     except Exception as e:
-        logging.error("Error getting summary statistics %s", e)
+        logger.error("Error getting summary statistics %s", e)
         raise e
-    logging.info('Collected stats on missing data.')
+    logger.info('Collected stats on missing data.')
     return nan_counts
 
 
@@ -136,19 +130,19 @@ def execution_time() -> dict:
     dict
         A dict containing execution time for ingestion and training
     """
-    logging.info("Getting execution time")
+    logger.info("Getting execution time")
     timings = {}
     start = timeit.default_timer()
     os.system('python ingestion.py')
     ingestion_time = timeit.default_timer() - start
     timings['ingestion_time'] = ingestion_time
-    logging.info('Collected stats on ingestion time.')
+    logger.info('Collected stats on ingestion time.')
 
     start = timeit.default_timer()
     os.system('python training.py')
     training_time = timeit.default_timer() - start
     timings['training_time'] = training_time
-    logging.info('Collected stats on training time.')
+    logger.info('Collected stats on training time.')
 
     return timings
 
@@ -158,14 +152,20 @@ def outdated_packages_list():
     """
     Get a list of outdated packages
     """
-    logging.info("Getting outdated packages")
+    logger.info("Getting outdated packages")
     outdated = subprocess.check_output(['pip', 'list', '-o'])
     print(outdated.decode())
-    logging.info('Collected stats on outdated packages.')
+    logger.info('Collected stats on outdated packages.')
     return outdated.decode()
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        filename="./logs/diagnostics.log",
+        level=logger.INFO,
+        filemode='w',
+        format='%(name)s - %(levelname)s - %(message)s'
+    )
 
     # Path and environment variables are in config.json
     with open('config.json', 'r', encoding='utf8') as config_file:

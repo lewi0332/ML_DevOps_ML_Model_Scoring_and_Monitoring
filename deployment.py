@@ -9,12 +9,7 @@ import os
 import json
 import logging
 
-logging.basicConfig(
-    filename="./logs/deployment.log",
-    level=logging.INFO,
-    filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s'
-)
+logger = logging.getLogger(__name__)
 
 
 # Function for deployment
@@ -42,7 +37,7 @@ def store_model_into_pickle(
     ---
     None
     """
-    logging.info("Storing model into pickle")
+    logger.info("Storing model into pickle")
     try:
         # Copy the latest pickle file
         os.system("cp " + output_model_path + "/" + "trainedmodel.pkl "
@@ -54,20 +49,26 @@ def store_model_into_pickle(
         os.system("cp " + output_folder_path + "/ingestedfiles.json "
                   + prod_deployment_path + "/ingestedfiles.json")
     except FileNotFoundError as fnf:
-        logging.error(
+        logger.error(
             "File not found, check config.json: %s", fnf)
         raise fnf
     except Exception as e:
-        logging.error("Error in storing model into pickle")
-        logging.error(e)
+        logger.error("Error in storing model into pickle")
+        logger.error(e)
         raise e
-    logging.info("Model, latest score, and latest file list stored into\
-                 prod_deployment_path: %s", prod_deployment_path)
+    logger.info(
+        "Model, latest score, and latest file list stored into \
+prod_deployment_path: %s", prod_deployment_path)
     return None
 
 
 if __name__ == "__main__":
-
+    logging.basicConfig(
+        filename="./logs/deployment.log",
+        level=logging.INFO,
+        filemode='w',
+        format='%(name)s - %(levelname)s - %(message)s'
+    )
     # Path variables are stored in config.json
     with open('config.json', 'r', encoding='utf8') as f:
         config = json.load(f)

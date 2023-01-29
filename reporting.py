@@ -14,12 +14,9 @@ import plotly.graph_objects as go
 import plotly.express as px
 from diagnostics import model_predictions
 
-logging.basicConfig(
-    filename="./logs/diagnostics.log",
-    level=logging.INFO,
-    filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s'
-)
+logger = logging.getLogger(__name__)
+
+
 
 
 def create_plots(
@@ -120,7 +117,12 @@ def create_plots(
 
 
 if __name__ == '__main__':
-
+    logging.basicConfig(
+        filename="./logs/reporting.log",
+        level=logging.INFO,
+        filemode='w',
+        format='%(name)s - %(levelname)s - %(message)s'
+    )
     # Load config.json and get path variables
     with open('config.json', 'r', encoding="utf8") as f:
         config = json.load(f)
@@ -130,6 +132,6 @@ if __name__ == '__main__':
     TEST_DATA = os.path.join(config['test_data_path'])
     DFF = pd.read_csv(TEST_DATA + '/testdata.csv')
 
-    FIG, FIG2 = score_model(DFF, OUTPUT, MODEL)
+    FIG, FIG2 = create_plots(DFF, OUTPUT, MODEL)
     FIG.show()
     FIG2.show()

@@ -13,13 +13,7 @@ import logging
 import pandas as pd
 from sklearn import metrics
 
-logging.basicConfig(
-    filename="./logs/training.log",
-    level=logging.INFO,
-    filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s'
-)
-
+logger = logging.getLogger(__name__)
 
 # Function for model scoring
 def score_model(
@@ -37,7 +31,7 @@ def score_model(
     output_folder_path: str
         Path to the dataset csv file
     test_data_path: str
-        Path to the test data csv file including the filename 
+        Path to the test data csv file including the filename
         ie. '/data/testdata.csv'
     output_model_path: str
         Path to the model pickle file
@@ -47,18 +41,18 @@ def score_model(
     F1 score: float
 
     """
-    logging.info("Scoring model")
+    logger.info("Scoring model")
     try:
         dff = pd.read_csv(test_data_path)
 
         y = dff.pop('exited')
         X = dff.drop('corporation', axis=1)
     except FileNotFoundError as fnf:
-        logging.error("File %s/testdata.csv not found, check config.json: %s",
+        logger.error("File %s/testdata.csv not found, check config.json: %s",
                       test_data_path, fnf)
         raise fnf
     except Exception as e:
-        logging.error("Error reading data %s", e)
+        logger.error("Error reading data %s", e)
         raise e
     model = pickle.load(open(output_model_path + '/trainedmodel.pkl', 'rb'))
 
@@ -73,7 +67,12 @@ def score_model(
 
 
 if __name__ == '__main__':
-
+    logging.basicConfig(
+        filename="./logs/scoring.log",
+        level=logging.INFO,
+        filemode='w',
+        format='%(name)s - %(levelname)s - %(message)s'
+    )
     # Path variables are stored in config.json
     with open('config.json', 'r', encoding='utf8') as f:
         config = json.load(f)

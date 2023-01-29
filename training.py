@@ -12,12 +12,7 @@ import logging
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 
-logging.basicConfig(
-    filename="./logs/training.log",
-    level=logging.INFO,
-    filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s'
-)
+logger = logging.getLogger(__name__)
 
 
 def train_model(data_pth: str, model_pth: str) -> None:
@@ -82,6 +77,12 @@ def train_model(data_pth: str, model_pth: str) -> None:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        filename="./logs/training.log",
+        level=logging.INFO,
+        filemode='w',
+        format='%(name)s - %(levelname)s - %(message)s'
+    )
     # Load config.json and get path variables
     with open('config.json', 'r', encoding='utf8') as file:
         config = json.load(file)

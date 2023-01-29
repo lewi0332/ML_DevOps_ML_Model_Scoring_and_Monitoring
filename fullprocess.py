@@ -1,6 +1,6 @@
 """
-This script is the main script that runs the entire process. 
-It will be scheduled to run on a regular basis. 
+This script is the main script that runs the entire process.
+It will be scheduled to run on a regular basis.
 
 Author: Derrick Lewis
 Date: 2023-01-29
@@ -78,7 +78,7 @@ new_f1_score = score_model(OUTPUT_PATH, OUTPUT_DATA_PATH, DEPLOY_PATH)
 if new_f1_score < og_f1_score:
     logging.info("Model drift detected")
     model_drift = True
-    
+
 else:
     logging.info("No model drift detected")
     model_drift = False

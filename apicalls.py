@@ -5,9 +5,6 @@ import os
 import json
 import requests
 
-# Specify a URL that resolves to your workspace
-
-
 
 def get_data(output_folder_path: str, url: str) -> None:
     """
@@ -17,7 +14,7 @@ def get_data(output_folder_path: str, url: str) -> None:
     ---
     output_folder_path: str
         Path to the folder where the responses will be stored
-    
+
     Returns
     ---
     None
@@ -34,9 +31,11 @@ def get_data(output_folder_path: str, url: str) -> None:
                 'data_summary': response3, 'diagnostics': response4}
     responses = apicalls
 
-    with open(output_folder_path + '/apireturns.json', 'w', encoding='utf8') as resp:
+    with open(output_folder_path + '/apireturns.json', 'w', encoding='utf8'
+              ) as resp:
         json.dump(responses, resp, indent=4)
     return None
+
 
 if __name__ == '__main__':
     with open('config.json', 'r', encoding='utf8') as f:
