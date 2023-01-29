@@ -14,7 +14,7 @@ from diagnostics import execution_time, missing_data, outdated_packages_list
 
 
 app = Flask(__name__)
-# app.secret_key = '1652d576-484a-49fd-913a-6879acfa6ba4'
+app.secret_key = '1652d576-484a-49fd-913a-6879acfa6ba4'
 
 with open('config.json', 'r', encoding='utf8') as f:
     config = json.load(f)
@@ -25,7 +25,7 @@ model_path = os.path.join(config['prod_deployment_path'])
 prediction_model = None
 
 
-@app.route("/prediction", methods=['POST', 'OPTIONS'])
+@app.route("/prediction", methods=['GET', 'OPTIONS'])
 def predict() -> str:
     """
     Calls the prediction function on the data in the config file
@@ -34,7 +34,7 @@ def predict() -> str:
     filepath = request.args.get('filepath')
     dff = pd.read_csv(filepath)
     preds = model_predictions(dff, model_path)
-    return str(preds)
+    return str(list(preds))
 
 
 @app.route("/scoring", methods=['GET', 'OPTIONS'])
@@ -63,7 +63,7 @@ def diagnose():
     timings = execution_time()
     missing = missing_data(dataset_csv_path)
     outdated = outdated_packages_list()
-    dianostics = {'timings': timings, 'missing': missing, 'outdated': outdated}
+    dianostics = {'timings': timings, 'missing_data': missing, 'outdated_pckgs': outdated}
     return dianostics
 
 
