@@ -1,16 +1,18 @@
+"""
+Script to run the Flask app
+
+Author: Derrick Lewis
+Date: 2023-01-29
+"""
 import json
 import os
-from flask import Flask, session, jsonify, request
+from flask import Flask, request
 import pandas as pd
-# import numpy as np
-# import pickle
 # import create_prediction_model
 from diagnostics import model_predictions, dataframe_summary
 from diagnostics import execution_time, missing_data, outdated_packages_list
-# import predict_exited_from_saved_model
 
 
-# Set up variables for use in our script
 app = Flask(__name__)
 # app.secret_key = '1652d576-484a-49fd-913a-6879acfa6ba4'
 
@@ -34,18 +36,21 @@ def predict() -> str:
     preds = model_predictions(dff, model_path)
     return str(preds)
 
-# Scoring Endpoint
-@app.route("/scoring", methods=['GET','OPTIONS'])
-def score():        
-    """heck the score of the deployed model"""
+
+@app.route("/scoring", methods=['GET', 'OPTIONS'])
+def score():
+    """Check the score of the deployed model"""
     with open(dataset_csv_path + '/latestscore.txt', 'r', encoding='utf8'
               ) as f1:
         latestscore = f1.read()
     return latestscore
 
-# Summary Statistics Endpoint
+
 @app.route("/summarystats", methods=['GET', 'OPTIONS'])
 def summary():
+    """
+    Calls the summary function on the data in the config file
+    """
     sumamry_dict = dataframe_summary(dataset_csv_path)
     return sumamry_dict
 
