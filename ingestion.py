@@ -98,6 +98,3 @@ if __name__ == '__main__':
 
     merge_multiple_dataframe(input_folder_path, output_folder_path, extension)
 
-# import ast
-# with open('./' + output_folder_path + '/ingestedfiles.txt', 'r') as f:
-#     r2list = ast.literal_eval(f.read())
