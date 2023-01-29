@@ -9,8 +9,9 @@ import json
 import os
 import logging
 import pandas as pd
-from sklearn import metrics
+from sklearn.metrics import confusion_matrix, roc_curve, auc
 import plotly.graph_objects as go
+import plotly.express as px
 from diagnostics import model_predictions
 
 logging.basicConfig(
@@ -21,7 +22,7 @@ logging.basicConfig(
 )
 
 
-def score_model(
+def create_plots(
     dff: pd.DataFrame,
     output_folder_path: str,
     prod_deployment_path: str
@@ -56,31 +57,66 @@ def score_model(
     logging.info('Generating confusion matrix in Plotly')
     print('dff exited type: ', dff['exited'].dtype)
     print('preds type: ', preds.dtype)
-    fig = go.Figure()
-    fig.add_trace(go.Heatmap(
-        z=metrics.confusion_matrix(dff['exited'].astype(int), preds),
+
+    y_test = dff['exited'].astype(int)
+
+    fig_cm = go.Figure()
+    fig_cm.add_trace(go.Heatmap(
+        z=confusion_matrix(y_test, preds),
         x=['Predicted Not Exited', 'Predicted Exited'],
         y=['Actual Not Exited', 'Actual Exited'],
-        text=metrics.confusion_matrix(dff['exited'].astype(int), preds),
+        text=confusion_matrix(y_test, preds),
         texttemplate="%{text}",
         textfont={"size": 20},
         colorscale='YlGnBu')
         )
-    fig.update_layout(
+    fig_cm.update_layout(
         title='Confusion Matrix',
         xaxis_title='Predicted',
         yaxis_title='Actual'
         )
 
     logging.info('Saving confusion matrix to %s', output_folder_path)
-    fig.write_image(
+    fig_cm.write_image(
         os.path.join(output_folder_path, 'confusionmatrix.png'),
         format='png',
         width=800, height=600)
 
-    # TODO: write json format for dashboard
     logging.info('Finished generating confusion matrix')
-    return fig
+
+    # load deployed model
+    # with open(prod_deployment_path + 'trainedmodel.pkl', 'rb') as pkl:
+    #     MODEL = pkl.load(f)
+
+    # y_pred = MODEL.predict_proba(X_test)[:, 1]
+    fpr, tpr, thresholds = roc_curve(y_test, preds, pos_label=1)
+    fig_auc = px.area(
+            x=fpr,
+            y=tpr,
+            title=f'Logistic Regression<br><sub>ROC Curve (AUC={auc(fpr, tpr):.4f})',
+            labels=dict(x='False Positive Rate',
+                        y='True Positive Rate'),
+            width=600,
+            height=800
+    )
+    fig_auc.add_shape(
+            type='line',
+            line=dict(dash='dash'),
+            x0=0,
+            x1=1,
+            y0=0,
+            y1=1
+    )
+
+    fig_auc.update_yaxes(scaleanchor="x", scaleratio=1)
+    fig_auc.update_xaxes(constrain='domain')
+
+    # TODO: write json format for dashboard
+    fig_auc.write_image(
+        os.path.join(output_folder_path, 'auc.png'),
+        format='png',
+        width=800, height=600)
+    return fig_cm, fig_auc
 
 
 if __name__ == '__main__':
@@ -94,5 +130,6 @@ if __name__ == '__main__':
     TEST_DATA = os.path.join(config['test_data_path'])
     DFF = pd.read_csv(TEST_DATA + '/testdata.csv')
 
-    FIG = score_model(DFF, OUTPUT, MODEL)
+    FIG, FIG2 = score_model(DFF, OUTPUT, MODEL)
     FIG.show()
+    FIG2.show()

@@ -14,7 +14,7 @@ from ingestion import merge_multiple_dataframe
 from training import train_model
 from scoring import score_model
 from deployment import store_model_into_pickle
-from reporting import score_model
+from reporting import create_plots
 from apicalls import get_data
 
 logging.basicConfig(
@@ -31,7 +31,6 @@ DEPLOY_PATH = os.path.join(config['prod_deployment_path'])
 INPUT_PATH = os.path.join(config['input_folder_path'])
 OUTPUT_PATH = os.path.join(config['output_folder_path'])
 OUTPUT_MODEL_PATH = os.path.join(config['output_model_path'])
-REPORT_PATH = os.path.join(config['report_path'])
 TEST_DATA_PATH = os.path.join(config['test_data_path'])
 EXT = config['input_file_extension']
 URL = config['url']
@@ -89,5 +88,5 @@ else:
 if model_drift is True:
     train_model(OUTPUT_PATH, OUTPUT_MODEL_PATH)
     store_model_into_pickle(OUTPUT_PATH, OUTPUT_MODEL_PATH, DEPLOY_PATH)
-    get_data(REPORT_PATH, URL)
-    score_model(df, REPORT_PATH, DEPLOY_PATH)
+    get_data(OUTPUT_MODEL_PATH, URL)
+    create_plots(df, OUTPUT_MODEL_PATH, DEPLOY_PATH)
