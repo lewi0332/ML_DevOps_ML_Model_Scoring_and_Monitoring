@@ -63,7 +63,9 @@ def diagnose():
     timings = execution_time()
     missing = missing_data(dataset_csv_path)
     outdated = outdated_packages_list()
-    dianostics = {'timings': timings, 'missing_data': missing, 'outdated_pckgs': outdated}
+    dianostics = {'timings': timings,
+                  'missing_data': missing,
+                  'outdated_pckgs': outdated}
     return dianostics
 
 
