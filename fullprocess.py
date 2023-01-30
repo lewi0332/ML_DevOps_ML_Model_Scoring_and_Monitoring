@@ -17,8 +17,7 @@ from deployment import store_model_into_pickle
 from reporting import create_plots
 from apicalls import get_data
 
-# Set up working directory of this file
-
+# Set up working directory of this file so that cron can run it from anywhere
 path = os.path.dirname(os.path.abspath(__file__))
 os.chdir(path)
 
