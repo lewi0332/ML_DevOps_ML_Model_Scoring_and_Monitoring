@@ -17,11 +17,17 @@ from deployment import store_model_into_pickle
 from reporting import create_plots
 from apicalls import get_data
 
+# Set up working directory of this file
+
+path = os.path.dirname(os.path.abspath(__file__))
+os.chdir(path)
+
 logging.basicConfig(
-    filename="./logs/fullprocess.log",
+    filename=os.path.join(os.getcwd() + "/logs/fullprocess.log"),
     level=logging.INFO,
-    filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s'
+    filemode='a',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
 with open('config.json', 'r', encoding='utf8') as file:

@@ -30,13 +30,13 @@ def train_model(data_pth: str, model_pth: str) -> None:
     ---
     None
     """
-    logging.info("Training model")
+    logger.info("Training model")
     try:
         dff = pd.read_csv(data_pth + '/finaldata.csv')
         y = dff.pop('exited')
         X = dff.drop('corporation', axis=1)
     except Exception as e:
-        logging.error("Error reading data %s", e)
+        logger.error("Error reading data %s", e)
         raise e
     model = LogisticRegression(
         C=1.0,
@@ -56,23 +56,23 @@ def train_model(data_pth: str, model_pth: str) -> None:
         warm_start=False)
 
     # fit the logistic regression to your data
-    logging.info('Fitting model')
+    logger.info('Fitting model')
     model = model.fit(X, y)
 
     # write the trained model in a file called trainedmodel.pkl
-    logging.info('Writing model to file')
+    logger.info('Writing model to file')
     try:
         with open(model_pth + '/trainedmodel.pkl', 'wb') as mod:
             pickle.dump(model, mod)
     except FileNotFoundError as fnf:
-        logging.error(
+        logger.error(
             "File %s/trainedmodel.pkl not found, check config.json: %s",
             model_pth, fnf)
         raise fnf
     except Exception as e:
-        logging.error("Error writing model to file %s", e)
+        logger.error("Error writing model to file %s", e)
         raise e
-    logging.info('Model training complete')
+    logger.info('Model training complete')
     return None
 
 

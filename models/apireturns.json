@@ -6,7 +6,7 @@
         0,
         1
     ],
-    "F1_score": "0.6923076923076923",
+    "F1_score": "0.5454545454545455",
     "data_summary": {
         "exited": {
             "25%": 0.0,
@@ -59,8 +59,8 @@
         },
         "outdated_pckgs": "Package            Version Latest Type\n------------------ ------- ------ -----\ncharset-normalizer 2.1.1   3.0.1  wheel\njupyter_client     7.4.9   8.0.1  wheel\nsetuptools         66.1.1  67.0.0 wheel\n",
         "timings": {
-            "ingestion_time": 0.3628016129950993,
-            "training_time": 0.9076175199879799
+            "ingestion_time": 0.40285165200475603,
+            "training_time": 0.9905212839948945
         }
     }
 }

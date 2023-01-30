@@ -15,6 +15,7 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
+
 # Function for data ingestion
 def merge_multiple_dataframe(
     input_folder_path: str,
