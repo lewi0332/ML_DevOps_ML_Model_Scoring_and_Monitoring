@@ -53,15 +53,15 @@ a single training file before training the model.
 - The config files sets all parameters of the project to be run. It is in a `.json` format and should contain `key:value` pairs in a string format. 
 - The following values should be present to train and deploy this project
 
-'''
-"input_folder_path": "sourcedata", 
+```
+"input_folder_path": "sourcedata",
 "output_folder_path": "ingesteddata",
 "test_data_path": "testdata",
 "output_model_path": "models",
 "prod_deployment_path": "production_deployment",
 "input_file_extension": "csv",
 "url": "http://127.0.0.1:8000/"
-'''
+```
 
 ### Directories
 - [practicedata](practicedata): This folder that contains some data to use in development of the main functions. 
