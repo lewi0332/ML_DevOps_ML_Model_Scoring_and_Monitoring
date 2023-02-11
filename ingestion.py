@@ -53,7 +53,7 @@ def merge_multiple_dataframe(
         assert len(result) > 0
     except AssertionError as e:
         logger.error("Input folder %s does not contain .csv files",
-                      input_folder_path)
+                     input_folder_path)
         raise e
     logger.info("Found (%i) files in the input folder", len(result))
     for filename in result:

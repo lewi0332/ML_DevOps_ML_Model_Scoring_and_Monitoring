@@ -14,6 +14,15 @@ import plotly.io as pio
 import pandas as pd
 from diagnostics import model_predictions, dataframe_summary
 from diagnostics import execution_time, missing_data, outdated_packages_list
+import logging
+
+api_log = logging.basicConfig(
+    filename=os.path.join(os.getcwd() + "/logs/api.log"),
+    level=logging.INFO,
+    filemode='a',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 external_stylesheets = [dbc.themes.BOOTSTRAP]
 CELL_PADDING = 5
@@ -23,27 +32,41 @@ FONTSIZE = 12
 
 # ---------------------------------------------------------------------
 # read in the data from the json file
-with open(f'models/apireturns.json', 'r') as outfile:
-    data_check = json.load(outfile)
-dff = pd.DataFrame(data_check['data_summary'])
-
+try:
+    with open(f'models/apireturns.json', 'r') as outfile:
+        data_check = json.load(outfile)
+    dff = pd.DataFrame(data_check['data_summary'])
+except FileNotFoundError:
+    api_log.warning('No json diagnostics file found')
+    dff = pd.DataFrame()
+    data_check = {
+        'F1_score': {},
+        'diagnostics': {
+            'timings':{'ingestion_time': {},
+                       'training_time': {}
+            }
+        }
+    }
 # ---------------------------------------------------------------------
-# convert pip outdated stdout to dataframe 
-outdated = data_check['diagnostics']['outdated_pckgs']
+# convert pip outdated stdout into a dataframe 
+try:
+    outdated = data_check['diagnostics']['outdated_pckgs']
 
-column_widths = [len(dashes) for dashes in outdated.split("\n")[1].split()]
-column_names = outdated.split("\n")[0].split()
-data = {key: list() for key in column_names}
-for line in outdated.split("\n")[2:]:
-    start = 0
-    end = 0
-    for column_name, column_width in zip(column_names, column_widths):
-        end += column_width + 1
-        data[column_name].append(line[start:end])
-        start = end
-    
-outdated = pd.DataFrame(data)
-
+    column_widths = [len(dashes) for dashes in outdated.split("\n")[1].split()]
+    column_names = outdated.split("\n")[0].split()
+    data = {key: list() for key in column_names}
+    for line in outdated.split("\n")[2:]:
+        start = 0
+        end = 0
+        for column_name, column_width in zip(column_names, column_widths):
+            end += column_width + 1
+            data[column_name].append(line[start:end])
+            start = end
+        
+    outdated = pd.DataFrame(data)
+except KeyError:
+    outdated = pd.DataFrame()
+    api_log.warning('No json diagnostics for outdated PIP packages found')
 # ---------------------------------------------------------------------
 # Read in the confusion matrix and AUC plotly figures from json files
 with open(f'models/confusionmatrix.json', 'r') as outfile:
@@ -113,10 +136,6 @@ def diagnose():
                   'missing_data': missing,
                   'outdated_pckgs': outdated}
     return dianostics
-
-
-
-
 
 
 app.layout = dbc.Container(
