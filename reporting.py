@@ -17,8 +17,6 @@ from diagnostics import model_predictions
 logger = logging.getLogger(__name__)
 
 
-
-
 def create_plots(
     dff: pd.DataFrame,
     output_folder_path: str,
@@ -79,18 +77,17 @@ def create_plots(
         format='png',
         width=800, height=600)
 
+    with open(f'{output_folder_path}/confusionmatrix.json', 'w') as outfile:
+        json.dump(fig_cm.to_json(), outfile)
+
     logging.info('Finished generating confusion matrix')
-
-    # load deployed model
-    # with open(prod_deployment_path + 'trainedmodel.pkl', 'rb') as pkl:
-    #     MODEL = pkl.load(f)
-
-    # y_pred = MODEL.predict_proba(X_test)[:, 1]
+    logging.info('Generating ROC Curve')
     fpr, tpr, thresholds = roc_curve(y_test, preds, pos_label=1)
     fig_auc = px.area(
             x=fpr,
             y=tpr,
-            title=f'Logistic Regression<br><sub>ROC Curve (AUC={auc(fpr, tpr):.4f})',
+            title=f'Logistic Regression<br>\
+                <sub>ROC Curve (AUC={auc(fpr, tpr):.4f})',
             labels=dict(x='False Positive Rate',
                         y='True Positive Rate'),
             width=600,
@@ -107,12 +104,17 @@ def create_plots(
 
     fig_auc.update_yaxes(scaleanchor="x", scaleratio=1)
     fig_auc.update_xaxes(constrain='domain')
+    logging.info('Created ROC Curve')
 
     # TODO: write json format for dashboard
     fig_auc.write_image(
         os.path.join(output_folder_path, 'auc.png'),
         format='png',
         width=800, height=600)
+
+    with open(f'{output_folder_path}/auc.json', 'w') as outfile:
+        json.dump(fig_auc.to_json(), outfile)
+    logging.info('Saved ROC/AUC to %s', output_folder_path)
     return fig_cm, fig_auc
 
 
