@@ -3,50 +3,50 @@
         0,
         1,
         1,
-        1,
+        0,
         1
     ],
-    "F1_score": "0.5714285714285715",
+    "F1_score": "0.5454545454545455",
     "data_summary": {
         "exited": {
             "25%": 0.0,
-            "50%": 1.0,
+            "50%": 0.5,
             "75%": 1.0,
             "count": 26.0,
             "max": 1.0,
-            "mean": 0.5769230769230769,
+            "mean": 0.5,
             "min": 0.0,
-            "std": 0.5038314736557788
+            "std": 0.5099019513592785
         },
         "lastmonth_activity": {
-            "25%": 16.75,
-            "50%": 73.0,
-            "75%": 100.75,
+            "25%": 38.25,
+            "50%": 425.0,
+            "75%": 1804.75,
             "count": 26.0,
-            "max": 1090.0,
-            "mean": 165.65384615384616,
+            "max": 98765.0,
+            "mean": 5625.923076923077,
             "min": 0.0,
-            "std": 284.0332293669446
+            "std": 19444.774621317832
         },
         "lastyear_activity": {
-            "25%": 406.25,
-            "50%": 955.0,
-            "75%": 1615.5,
+            "25%": 14.0,
+            "50%": 97.5,
+            "75%": 474.75,
             "count": 26.0,
-            "max": 10983.0,
-            "mean": 1502.923076923077,
-            "min": 18.0,
-            "std": 2192.64495845683
+            "max": 9982.0,
+            "mean": 763.5384615384615,
+            "min": 0.0,
+            "std": 2016.6093569309696
         },
         "number_of_employees": {
-            "25%": 7.25,
-            "50%": 14.0,
-            "75%": 34.5,
+            "25%": 12.75,
+            "50%": 99.0,
+            "75%": 626.5,
             "count": 26.0,
-            "max": 103.0,
-            "mean": 26.884615384615383,
-            "min": 1.0,
-            "std": 31.35388578543581
+            "max": 3782.0,
+            "mean": 457.46153846153845,
+            "min": 2.0,
+            "std": 800.6048328991891
         }
     },
     "diagnostics": {
@@ -57,10 +57,10 @@
             "lastyear_activity": 0,
             "number_of_employees": 0
         },
-        "outdated_pckgs": "Package            Version Latest Type\n------------------ ------- ------ -----\ncharset-normalizer 2.1.1   3.0.1  wheel\njupyter_client     7.4.9   8.0.1  wheel\nsetuptools         66.1.1  67.0.0 wheel\n",
+        "outdated_pckgs": "Package            Version Latest Type\n------------------ ------- ------ -----\ncharset-normalizer 2.1.1   3.0.1  wheel\ncryptography       39.0.0  39.0.1 wheel\nipykernel          6.20.2  6.21.1 wheel\nipython            8.9.0   8.10.0 wheel\njupyter_client     7.4.9   8.0.2  wheel\njupyter_core       5.1.5   5.2.0  wheel\nnumpy              1.24.1  1.24.2 wheel\npip                22.3.1  23.0   wheel\nplatformdirs       2.6.2   3.0.0  wheel\nsetuptools         66.1.1  67.2.0 wheel\ntenacity           8.1.0   8.2.1  wheel\ntraitlets          5.8.1   5.9.0  wheel\nzipp               3.12.0  3.13.0 wheel\n",
         "timings": {
-            "ingestion_time": 0.3600266169960378,
-            "training_time": 0.9312723390030442
+            "ingestion_time": 0.3136072859633714,
+            "training_time": 0.7533220350160263
         }
     }
 }
